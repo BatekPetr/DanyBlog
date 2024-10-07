@@ -1,8 +1,12 @@
+.idea
+.venv
+__pycache__
+
 # sensitive data
-/instance
+instance
 
 # image files
-/static/uploads
+static/uploads
 
 # created by virtualenv automatically
 .venv/bin
