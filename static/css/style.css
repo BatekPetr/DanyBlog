@@ -1,14 +1,49 @@
-body {
-    background-color: #f8f9fa;
+/* Upravte velikost obrázků v příspěvcích na index.html */
+.post-image {
+    width: 100%;           /* Obrázek zabírá 100% šířky rodičovského elementu */
+    max-height: 300px;      /* Maximální šířka obrázku, upravte dle potřeby */
+    max-width: 500px;          /* Zachová poměr stran obrázku */
+    object-fit: cover;     /* Přizpůsobí obrázek do dané šířky a výšky */
+    display: block;        /* Zajišťuje blokový formát obrázku */
+    margin: 0 auto;        /* Obrázek bude centrovaný */
+    margin-bottom: 15px; /* Odsazení mezi obrázkem a tlacitkem */
+    object-fit: cover;  /* Oříznutí obrázku */
 }
 
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding-top: 50px;
+/* Karty budou vypadat stejně pro každý příspěvek */
+.card {
+    max-width: 600px; /* Upravte šířku karty podle potřeby */
+    margin: 0 auto;   /* Centrovat karty */
 }
 
-h1 {
-    text-align: center;
-    margin-bottom: 30px;
+/* Vlastní zelené tlačítko */
+.btn-red {
+    background-color:  #d53105; /* Nastavíme zelenou barvu */
+    color: white;               /* Text bílý */
+    border: none;               /* Odstraníme okraj */
+    padding: 10px 20px;         /* Nastavíme vnitřní odsazení */
+    border-radius: 5px;         /* Zaoblení rohů */
+    cursor: pointer;            /* Změníme kurzor na ukazatel */
+}
+
+.btn-green {
+    background-color: #28a745;  /* Nastavíme zelenou barvu */
+    color: white;               /* Text bílý */
+    border: none;               /* Odstraníme okraj */
+    padding: 10px 20px;         /* Nastavíme vnitřní odsazení */
+    border-radius: 5px;         /* Zaoblení rohů */
+    cursor: pointer;            /* Změníme kurzor na ukazatel */
+}
+
+.btn-blue {
+    background-color: #0773f5;  /* Nastavíme zelenou barvu */
+    color: white;               /* Text bílý */
+    border: none;               /* Odstraníme okraj */
+    padding: 10px 20px;         /* Nastavíme vnitřní odsazení */
+    border-radius: 5px;         /* Zaoblení rohů */
+    cursor: pointer;            /* Změníme kurzor na ukazatel */
+}
+
+.btn-green:hover {
+    background-color: #218838;  /* Tmavší zelená při hoveru */
 }

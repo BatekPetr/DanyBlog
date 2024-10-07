@@ -101,15 +101,16 @@ def edit_post(post_id):
 
 
 # Funkce pro odstranění příspěvku
-@app.route('/delete_post/<int:post_id>')
+@app.route('/delete_post/<int:post_id>', methods=['POST', 'DELETE'])
 def delete_post(post_id):
     post = Post.query.get_or_404(post_id)
 
     # Odstranění obrázku ze složky uploads, pokud existuje
-    if post.image:
-        image_path = os.path.join(app.config['UPLOAD_FOLDER'], post.image)
-        if os.path.exists(image_path):
-            os.remove(image_path)
+    if post.images:
+        for image in post.images:
+            image_path = os.path.join(app.config['UPLOAD_FOLDER'], image)
+            if os.path.exists(image_path):
+                os.remove(image_path)
 
     # Odstranění příspěvku z databáze
     db.session.delete(post)
