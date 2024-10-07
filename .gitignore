@@ -1,0 +1,8 @@
+# sensitive data
+/instance
+
+# image files
+/static/uploads
+
+# created by virtualenv automatically
+.venv/bin
