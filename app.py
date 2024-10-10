@@ -42,11 +42,16 @@ with app.app_context():
     db.create_all()
 
 
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('404.html'), 404
+
+
 # Hlavní stránka - zobrazení formuláře pro přidání příspěvku
 @app.route('/')
 def index():
     posts = Post.query.all()  # Načtení všech příspěvků z databáze
-    return render_template('index.html', posts=posts)
+    return render_template('index.html', posts=posts, image='img/DanyTravels.jpg')
 
 
 # Přidání nového příspěvku
@@ -152,7 +157,8 @@ def delete_image(post_id, image_name):
 @app.route('/post/<int:post_id>')
 def post_detail(post_id):
     post = Post.query.get_or_404(post_id)
-    return render_template('post_detail.html', post=post)
+    return render_template('post_detail.html', post=post,
+                           image=os.path.join('uploads/', post.images[0]))
 
 
 if __name__ == "__main__":
