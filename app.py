@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, flash, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.ext.mutable import MutableList
@@ -14,6 +14,7 @@ app = Flask(__name__)
 cfg = config.config["development"]
 
 # Konfigurace databáze a cesta pro nahrávání souborů
+app.config['SECRET_KEY'] = instance.config.SECRET_KEY
 app.config['SQLALCHEMY_DATABASE_URI'] = instance.config.SQLALCHEMY_DATABASE_URI
 app.config['UPLOAD_FOLDER'] = cfg.UPLOAD_FOLDER
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -29,6 +30,11 @@ class Post(db.Model):
     content = db.Column(db.Text, nullable=False)
     images = db.Column(MutableList.as_mutable(ARRAY(db.Text)), nullable=True, default=list)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+
+# # Po zmene DB modelu je nutne vymazat a znovu-vytvorit tabulky
+# with app.app_context():
+#     db.drop_all()  # Vymaze existujici tabulky
 
 
 # Vytvoření databázových tabulek při prvním spuštění
@@ -64,7 +70,7 @@ def add_post():
         db.session.add(new_post)
         db.session.commit()
 
-        return redirect(url_for('index'))  # Přesměrování na domovskou stránku nebo jinou stránku
+        return jsonify({'success': True})
 
     return render_template('add_post.html', post=None, edit=False)
 
@@ -117,6 +123,30 @@ def delete_post(post_id):
     db.session.commit()
 
     return redirect(url_for('index'))
+
+
+@app.route('/delete_image/<int:post_id>/<image_name>', methods=['POST'])
+def delete_image(post_id, image_name):
+    post = Post.query.get_or_404(post_id)
+
+    # Odstraň obrázek ze seznamu obrázků (pokud existuje)
+    if image_name in post.images:
+        post.images.remove(image_name)
+
+        # Ulož změny do databáze
+        db.session.commit()
+
+        # Odstraň obrázek ze souborového systému
+        image_path = os.path.join(app.config['UPLOAD_FOLDER'], image_name)
+        if os.path.exists(image_path):
+            os.remove(image_path)
+
+        flash('Obrázek byl úspěšně odstraněn.', 'success')
+    else:
+        flash('Obrázek nebyl nalezen.', 'danger')
+
+    # Přesměrování zpět na detail příspěvku
+    return redirect(url_for('post_detail', post_id=post_id))
 
 
 @app.route('/post/<int:post_id>')
