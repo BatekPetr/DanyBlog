@@ -6,7 +6,7 @@ __pycache__
 src/instance
 
 # image files
-src/core/static/uploads
+static/uploads
 
 # created by virtualenv automatically
 .venv/bin
