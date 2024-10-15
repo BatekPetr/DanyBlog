@@ -2,6 +2,7 @@
 .venv
 __pycache__
 
+migrations
 # sensitive data
 src/instance
 
