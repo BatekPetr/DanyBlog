@@ -1,165 +1,72 @@
-from flask import Flask, flash, render_template, request, redirect, url_for, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy.ext.mutable import MutableList
-from werkzeug.utils import secure_filename
 import os
 
-import config
-import instance.config
+from flask import render_template, Flask
 
-app = Flask(__name__)
+from .model import bcrypt, db, login_manager, migrate, mail
+from .config import cfg
 
-# Change configuration here
-cfg = config.config["development"]
+# Import blueprints
+from .src.accounts.views import accounts_bp
+from .src.core.views import core_bp
+from .src.posts.views import posts_bp
 
-# Konfigurace databáze a cesta pro nahrávání souborů
-app.config['SECRET_KEY'] = instance.config.SECRET_KEY
-app.config['SQLALCHEMY_DATABASE_URI'] = instance.config.SQLALCHEMY_DATABASE_URI
-app.config['UPLOAD_FOLDER'] = cfg.UPLOAD_FOLDER
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# Inicializace SQLAlchemy
-db = SQLAlchemy(app)
+from .src.accounts.models import User
 
 
-# Definice modelu pro příspěvky
-class Post(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    images = db.Column(MutableList.as_mutable(ARRAY(db.Text)), nullable=True, default=list)
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
+def create_app():
+    app = Flask(__name__)
+
+    # Konfigurace databáze a cesta pro nahrávání souborů
+    app.config['SECRET_KEY'] = cfg.SECRET_KEY
+    app.config['SQLALCHEMY_DATABASE_URI'] = cfg.SQLALCHEMY_DATABASE_URI
+    app.config['UPLOAD_FOLDER'] = cfg.UPLOAD_FOLDER
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['DEBUG'] = cfg.DEBUG
+
+    # Konfigurece emailu
+    app.config['MAIL_SERVER'] = cfg.MAIL_SERVER
+    app.config['MAIL_PORT'] = cfg.MAIL_PORT
+    app.config['MAIL_USE_SSL'] = cfg.MAIL_USE_SSL
+    app.config['MAIL_USE_TLS'] = cfg.MAIL_USE_TLS
+    app.config['MAIL_USERNAME'] = cfg.ADMIN_EMAIL
+    app.config['MAIL_PASSWORD'] = cfg.ADMIN_EMAIL_APP_PASS
 
 
-# # Po zmene DB modelu je nutne vymazat a znovu-vytvorit tabulky
-# with app.app_context():
-#     db.drop_all()  # Vymaze existujici tabulky
+    bcrypt.init_app(app)
+    db.init_app(app)
+    login_manager.init_app(app)
+
+    mail.init_app(app)
+    migrate.init_app(app, db)
+
+    # Registering blueprints
+    app.register_blueprint(accounts_bp)
+    app.register_blueprint(core_bp)
+    app.register_blueprint(posts_bp)
+
+    login_manager.login_view = "accounts.login"
+    login_manager.login_message_category = "danger"
+
+    # # Po zmene DB modelu je nutne vymazat a znovu-vytvorit tabulky
+    # with core.app_context():
+    #     db.drop_all()  # Vymaze existujici tabulky
+
+    # Vytvoření databázových tabulek při prvním spuštění
+    with app.app_context():
+        db.create_all()
+
+    return app
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.filter(User.id == int(user_id)).first()
 
 
-# Vytvoření databázových tabulek při prvním spuštění
-with app.app_context():
-    db.create_all()
-
-
-@app.errorhandler(404)
-def page_not_found(error):
-    return render_template('404.html'), 404
-
-
-# Hlavní stránka - zobrazení formuláře pro přidání příspěvku
-@app.route('/')
-def index():
-    posts = Post.query.all()  # Načtení všech příspěvků z databáze
-    return render_template('index.html', posts=posts, image='img/DanyTravels.jpg')
-
-
-# Přidání nového příspěvku
-@app.route('/add_post', methods=['GET', 'POST'])
-def add_post():
-    if request.method == 'POST':
-        title = request.form['title']
-        content = request.form['content']
-
-        # Zpracování nahrání obrázku, pokud je přítomen
-        image_filenames = []
-        images = request.files.getlist('images')
-        if images and images[0].filename != '':  # Zkontrolovat, zda jsou obrázky
-            for image in images:
-                file_name = secure_filename(image.filename)
-                image.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
-                image_filenames.append(file_name)
-
-        # Uložení příspěvku do databáze
-        new_post = Post(title=title, content=content, images=image_filenames)
-        db.session.add(new_post)
-        db.session.commit()
-
-        return jsonify({'success': True})
-
-    return render_template('add_post.html', post=None, edit=False)
-
-
-@app.route('/edit_post/<int:post_id>', methods=['GET', 'POST'])
-def edit_post(post_id):
-    post = Post.query.get_or_404(post_id)
-
-    if request.method == 'POST':
-        post.title = request.form['title']
-        post.content = request.form['content']
-
-        # Zpracování nových obrázků
-        images = request.files.getlist('images')
-        if images and images[0].filename != '':  # Zkontrolovat, zda jsou obrázky
-            image_filenames = []
-            for image in images:
-                file_name = secure_filename(image.filename)
-                image.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
-                image_filenames.append(file_name)
-            if post.images:
-                post.images += image_filenames
-            else:
-                post.images = image_filenames
-
-        try:
-            db.session.commit()
-        except Exception as e:
-            db.session.rollback()
-            print(f'Error occurred: {e}')  # Zobrazí chybu v konzoli
-        return redirect(url_for('post_detail', post_id=post.id))
-
-    return render_template('add_post.html', post=post, edit=True)
-
-
-# Funkce pro odstranění příspěvku
-@app.route('/delete_post/<int:post_id>', methods=['POST', 'DELETE'])
-def delete_post(post_id):
-    post = Post.query.get_or_404(post_id)
-
-    # Odstranění obrázku ze složky uploads, pokud existuje
-    if post.images:
-        for image in post.images:
-            image_path = os.path.join(app.config['UPLOAD_FOLDER'], image)
-            if os.path.exists(image_path):
-                os.remove(image_path)
-
-    # Odstranění příspěvku z databáze
-    db.session.delete(post)
-    db.session.commit()
-
-    return redirect(url_for('index'))
-
-
-@app.route('/delete_image/<int:post_id>/<image_name>', methods=['POST'])
-def delete_image(post_id, image_name):
-    post = Post.query.get_or_404(post_id)
-
-    # Odstraň obrázek ze seznamu obrázků (pokud existuje)
-    if image_name in post.images:
-        post.images.remove(image_name)
-
-        # Ulož změny do databáze
-        db.session.commit()
-
-        # Odstraň obrázek ze souborového systému
-        image_path = os.path.join(app.config['UPLOAD_FOLDER'], image_name)
-        if os.path.exists(image_path):
-            os.remove(image_path)
-
-        flash('Obrázek byl úspěšně odstraněn.', 'success')
-    else:
-        flash('Obrázek nebyl nalezen.', 'danger')
-
-    # Přesměrování zpět na detail příspěvku
-    return redirect(url_for('post_detail', post_id=post_id))
-
-
-@app.route('/post/<int:post_id>')
-def post_detail(post_id):
-    post = Post.query.get_or_404(post_id)
-    return render_template('post_detail.html', post=post,
-                           image=os.path.join('uploads/', post.images[0]))
+# @app.errorhandler(404)
+# def page_not_found(error):
+#     return render_template('404.html'), 404
 
 
 if __name__ == "__main__":
+    app = create_app()
     app.run(debug=cfg.DEBUG)

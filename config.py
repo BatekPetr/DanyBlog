@@ -1,4 +1,5 @@
 import os
+from .src.instance import config as instance_config
 
 # Základní nastavení
 class Config:
@@ -6,10 +7,25 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     UPLOAD_FOLDER = 'static/uploads/'
 
+    # Mail Settings
+    MAIL_SERVER = "smtp.gmail.com"
+    MAIL_PORT = 587
+    MAIL_USE_TLS = True
+    MAIL_USE_SSL = False
+
+    MAIL_DEBUG = False
+
+    MAIL_DEFAULT_SENDER = instance_config.ADMIN_EMAIL
+    ADMIN_EMAIL = instance_config.ADMIN_EMAIL
+    ADMIN_EMAIL_APP_PASS = instance_config.ADMIN_EMAIL_APP_PASS
+
+    SECRET_KEY = instance_config.SECRET_KEY
+    SECURITY_PASSWORD_SALT = instance_config.SECURITY_PASSWORD_SALT
+
 # Vývojové prostředí
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URI') or 'postgresql://yourusername:yourpassword@localhost/blogdb'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URI') or instance_config.SQLALCHEMY_DATABASE_URI
 
 # Testovací prostředí
 class TestingConfig(Config):
@@ -29,3 +45,6 @@ config = {
     'production': ProductionConfig,
     'default': DevelopmentConfig
 } 
+
+# Change configuration here
+cfg = config["development"]

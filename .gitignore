@@ -3,10 +3,10 @@
 __pycache__
 
 # sensitive data
-instance
+src/instance
 
 # image files
-static/uploads
+src/core/static/uploads
 
 # created by virtualenv automatically
 .venv/bin
