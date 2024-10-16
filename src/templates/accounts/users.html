@@ -1,0 +1,96 @@
+{% extends "_base.html" %}
+
+{% block title %}
+  Accounts
+{% endblock %}
+
+{% block heading %}
+  <h1>Accounts</h1>
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1>Seznam uživatelů</h1>
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Jméno</th>
+                    <th>Email</th>
+                    <th>Datum vytvoření</th>
+                    <th>Administrátor</th>
+                    <th>Potvrzený účet</th>
+                    <th>Datum potvrzení</th>
+                    <th>Schválený účet</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.created_on.strftime('%Y-%m-%d') if user.created_on else '' }}</td>
+                    <td class="text-center">{{ '✓' if user.is_admin else '✗' }}</td>
+                    <td class="text-center">{{ '✓' if user.is_confirmed else '✗' }}</td>
+                    <td>{{ user.confirmed_on.strftime('%Y-%m-%d') if user.confirmed_on else 'Nepotvrzeno' }}</td>
+                    <td class="text-center">
+                        <input type="checkbox" class="approve-checkbox" data-user-id="{{ user.id }}"
+                               {% if user.is_approved %}checked{% endif %}>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            // Událost pro změnu checkboxu
+            $('.approve-checkbox').change(function(){
+                var userId = $(this).data('user-id');
+                var isApproved = $(this).is(':checked');
+
+                // AJAX požadavek na aktualizaci databáze
+                $.ajax({
+                    url: '{{url_for("accounts.update_approval") }}',
+                    method: 'POST',
+                    data: JSON.stringify({
+                        user_id: userId,
+                        is_approved: isApproved
+                    }),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        console.log(response.message);
+                    },
+                    error: function(error) {
+                        console.log('Error:', error);
+                    }
+                });
+            });
+        });
+    </script>
+    <script>
+        // Přidání CSRF tokenu k AJAX požadavkům
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        $(document).ajaxSend(function(event, xhr, settings) {
+            xhr.setRequestHeader('X-CSRFToken', getCookie('csrf_token'));
+        });
+    </script>
+
+{% endblock %}

@@ -4,7 +4,7 @@ from flask_login import login_required
 from werkzeug.utils import secure_filename
 
 from .models import Post
-from ..accounts.views import login
+from ..utils.decorators import check_is_approved
 from ...model import db
 
 
@@ -15,6 +15,7 @@ posts_bp = Blueprint('posts', __name__, template_folder='../templates')
 # Přidání nového příspěvku
 @posts_bp.route('/add_post', methods=['GET', 'POST'])
 @login_required
+@check_is_approved
 def add_post():
     if request.method == 'POST':
         title = request.form['title']
@@ -41,6 +42,7 @@ def add_post():
 
 @posts_bp.route('/edit_post/<int:post_id>', methods=['GET', 'POST'])
 @login_required
+@check_is_approved
 def edit_post(post_id):
     post = Post.query.get_or_404(post_id)
 
@@ -74,6 +76,7 @@ def edit_post(post_id):
 # Funkce pro odstranění příspěvku
 @posts_bp.route('/delete_post/<int:post_id>', methods=['GET', 'POST', 'DELETE'])
 @login_required
+@check_is_approved
 def delete_post(post_id):
     post = Post.query.get_or_404(post_id)
 
@@ -93,6 +96,7 @@ def delete_post(post_id):
 
 @posts_bp.route('/delete_image/<int:post_id>/<image_name>', methods=['POST'])
 @login_required
+@check_is_approved
 def delete_image(post_id, image_name):
     post = Post.query.get_or_404(post_id)
 
@@ -118,6 +122,7 @@ def delete_image(post_id, image_name):
 
 @posts_bp.route('/post/<int:post_id>')
 @login_required
+@check_is_approved
 def post_detail(post_id):
     post = Post.query.get_or_404(post_id)
     return render_template('posts/post_detail.html', post=post,

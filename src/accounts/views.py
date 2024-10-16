@@ -1,10 +1,10 @@
 from datetime import datetime
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for, jsonify
 from flask_login import login_required, login_user, logout_user, current_user
 
 from .token import generate_token, confirm_token
-from ..utils.decorators import logout_required
+from ..utils.decorators import logout_required, admin_required
 from ..utils.email import send_email
 from ...model import bcrypt, db
 
@@ -19,19 +19,12 @@ accounts_bp = Blueprint("accounts", __name__, template_folder='../templates')
 def register():
     form = RegisterForm(request.form)
     if form.validate_on_submit():
-        user = User(email=form.email.data, password=form.password.data)
+        user = User(name=form.name.data, email=form.email.data, password=form.password.data)
         db.session.add(user)
         db.session.commit()
 
-        token = generate_token(user.email)
-        confirm_url = url_for("accounts.confirm_email", token=token, _external=True)
-        html = render_template("accounts/confirm_email.html", confirm_url=confirm_url)
-        subject = "Please confirm your email"
-        send_email(user.email, subject, html)
+        send_confirmation_email(user)
 
-        login_user(user)
-
-        flash("A confirmation email has been sent via email.", "success")
         return redirect(url_for("accounts.inactive"))
 
     return render_template("accounts/register.html", form=form)
@@ -81,21 +74,61 @@ def confirm_email(token):
 @accounts_bp.route("/inactive")
 @login_required
 def inactive():
-    if current_user.is_confirmed:
-        return redirect(url_for("core.home"))
-    return render_template("accounts/inactive.html")
+    if current_user.is_approved:
+        return redirect(url_for("core.index"))
+    elif current_user.is_confirmed:
+        return render_template("accounts/unapproved.html")
+    else:
+        return render_template("accounts/inactive.html")
 
 
 @accounts_bp.route("/resend")
 @login_required
 def resend_confirmation():
+    """Route for sending confirmation email."""
     if current_user.is_confirmed:
         flash("Your account has already been confirmed.", "success")
         return redirect(url_for("core.index"))
-    token = generate_token(current_user.email)
+
+    send_confirmation_email(current_user)
+
+    return redirect(url_for("accounts.inactive"))
+
+
+def send_confirmation_email(user):
+    token = generate_token(user.email)
     confirm_url = url_for("accounts.confirm_email", token=token, _external=True)
     html = render_template("accounts/confirm_email.html", confirm_url=confirm_url)
     subject = "Please confirm your email"
-    send_email(current_user.email, subject, html)
-    flash("A new confirmation email has been sent.", "success")
-    return redirect(url_for("accounts.inactive"))
+    send_email(user.email, subject, html)
+
+    login_user(user)
+
+    flash("A confirmation email has been sent via email.", "success")
+
+
+@accounts_bp.route('/users')
+@login_required
+@admin_required
+def users_list():
+    # Načteme všechny uživatele z databáze
+    users = User.query.all()
+    return render_template("accounts/users.html", users=users)
+
+
+@accounts_bp.route('/update_approval', methods=['POST'])
+@login_required
+@admin_required
+def update_approval():
+    data = request.get_json()
+    user_id = data.get('user_id')
+    is_approved = data.get('is_approved')
+
+    # Najdi uživatele podle ID a aktualizuj jeho is_approved hodnotu
+    user = User.query.get(user_id)
+    if user:
+        user.is_approved = is_approved
+        db.session.commit()
+        return jsonify({'message': 'Schválení aktualizováno.'}), 200
+    else:
+        return jsonify({'message': 'Uživatel nenalezen.'}), 404
