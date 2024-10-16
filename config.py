@@ -1,5 +1,5 @@
 import os
-from .src.instance import config as instance_config
+from src.instance import config as instance_config
 
 # Základní nastavení
 class Config:

@@ -4,6 +4,7 @@ Flask-SQLAlchemy
 Flask-Login
 Flask-Bcrypt
 Flask-WTF
+Flask-Mail
 FLask-Migrate
 Flask-SQLAlchemy
 Flask-Testing

@@ -1,7 +1,7 @@
 from flask_mail import Message
 
-from ...model import mail
-from ...config import Config
+from model import mail
+from config import Config
 
 
 def send_email(to, subject, template):

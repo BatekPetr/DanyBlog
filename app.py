@@ -2,15 +2,15 @@ import os
 
 from flask import render_template, Flask
 
-from .model import bcrypt, db, login_manager, migrate, mail
-from .config import config
+from model import bcrypt, db, login_manager, migrate, mail
+from config import config
 
 # Import blueprints
-from .src.accounts.views import accounts_bp
-from .src.core.views import core_bp
-from .src.posts.views import posts_bp
+from src.accounts.views import accounts_bp
+from src.core.views import core_bp
+from src.posts.views import posts_bp
 
-from .src.accounts.models import User
+from src.accounts.models import User
 
 
 def create_app(cfg):

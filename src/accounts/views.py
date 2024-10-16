@@ -3,10 +3,10 @@ from datetime import datetime
 from flask import Blueprint, flash, redirect, render_template, request, url_for, jsonify
 from flask_login import login_required, login_user, logout_user, current_user
 
-from .token import generate_token, confirm_token
-from ..utils.decorators import logout_required, admin_required
-from ..utils.email import send_email
-from ...model import bcrypt, db
+from src.accounts.token import generate_token, confirm_token
+from src.utils.decorators import logout_required, admin_required
+from src.utils.email import send_email
+from model import bcrypt, db
 
 from .models import User
 from .forms import LoginForm, RegisterForm

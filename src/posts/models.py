@@ -1,7 +1,7 @@
 from sqlalchemy import ARRAY
 from sqlalchemy.ext.mutable import MutableList
 
-from ...model import db
+from model import db
 
 
 class Post(db.Model):

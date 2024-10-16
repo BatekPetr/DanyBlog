@@ -3,9 +3,9 @@ from flask import Blueprint, current_app, render_template, redirect, request, ur
 from flask_login import login_required
 from werkzeug.utils import secure_filename
 
-from .models import Post
-from ..utils.decorators import check_is_approved
-from ...model import db
+from src.posts.models import Post
+from src.utils.decorators import check_is_approved
+from model import db
 
 
 # Defining a blueprint
