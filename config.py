@@ -36,7 +36,7 @@ class TestingConfig(Config):
 # Produkční prostředí
 class ProductionConfig(Config):
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = os.environ.get('PROD_DATABASE_URI') or 'postgresql://yourusername:yourpassword@localhost/proddb'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('PROD_DATABASE_URI') or instance_config.SQLALCHEMY_DATABASE_URI
 
 # Volba konfigurace podle prostředí
 config = {
@@ -44,7 +44,4 @@ config = {
     'testing': TestingConfig,
     'production': ProductionConfig,
     'default': DevelopmentConfig
-} 
-
-# Change configuration here
-cfg = config["development"]
+}

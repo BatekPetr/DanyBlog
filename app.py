@@ -3,7 +3,7 @@ import os
 from flask import render_template, Flask
 
 from .model import bcrypt, db, login_manager, migrate, mail
-from .config import cfg
+from .config import config
 
 # Import blueprints
 from .src.accounts.views import accounts_bp
@@ -13,7 +13,8 @@ from .src.posts.views import posts_bp
 from .src.accounts.models import User
 
 
-def create_app():
+def create_app(cfg):
+
     app = Flask(__name__)
 
     # Konfigurace databáze a cesta pro nahrávání souborů
@@ -67,6 +68,10 @@ def load_user(user_id):
 #     return render_template('404.html'), 404
 
 
+# Select configuration here
+cfg = config["development"]
+app = create_app(cfg)
+
+
 if __name__ == "__main__":
-    app = create_app()
     app.run(debug=cfg.DEBUG)

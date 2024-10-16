@@ -1,7 +1,7 @@
 from flask_mail import Message
 
 from ...model import mail
-from ...config import cfg
+from ...config import Config
 
 
 def send_email(to, subject, template):
@@ -9,6 +9,6 @@ def send_email(to, subject, template):
         subject,
         recipients=[to],
         html=template,
-        sender=cfg.MAIL_DEFAULT_SENDER,
+        sender=Config.MAIL_DEFAULT_SENDER,
     )
     mail.send(msg)

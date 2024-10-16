@@ -1,18 +1,18 @@
 from itsdangerous import URLSafeTimedSerializer
 
-from ...config import cfg
+from ...config import Config
 
 
 def generate_token(email):
-    serializer = URLSafeTimedSerializer(cfg.SECRET_KEY)
-    return serializer.dumps(email, salt=cfg.SECURITY_PASSWORD_SALT)
+    serializer = URLSafeTimedSerializer(Config.SECRET_KEY)
+    return serializer.dumps(email, salt=Config.SECURITY_PASSWORD_SALT)
 
 
 def confirm_token(token, expiration=3600):
-    serializer = URLSafeTimedSerializer(cfg.SECRET_KEY)
+    serializer = URLSafeTimedSerializer(Config.SECRET_KEY)
     try:
         email = serializer.loads(
-            token, salt=cfg.SECURITY_PASSWORD_SALT, max_age=expiration
+            token, salt=Config.SECURITY_PASSWORD_SALT, max_age=expiration
         )
         return email
     except Exception:
