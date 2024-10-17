@@ -12,23 +12,6 @@
 
 {% block content %}
     <script>
-        function addImageInput() {
-            const imageInputsDiv = document.getElementById('image-inputs');
-
-            // Vytvoří nový element pro další obrázek
-            const newInput = document.createElement('input');
-            newInput.type = 'file';
-            newInput.id = "addImage"
-            newInput.name = 'images';  // Důležité, aby měl stejné jméno jako ostatní obrázky
-            newInput.classList.add('form-control', 'mb-2');  // Přidání Bootstrap tříd pro stylování
-            newInput.multiple = true;  // Umožní nahrát více obrázků najednou
-            newInput.accept="image/*"
-            newInput.onchange="previewImages()"
-
-            // Přidá nový vstup pro obrázek do formuláře
-            imageInputsDiv.appendChild(newInput);
-        }
-
         let imageFiles = []; // Array pro uchovávání všech vybraných obrázků
 
         function previewImages() {
@@ -37,15 +20,12 @@
 
             // Získat vybrané soubory
             const files = fileInput.files;
-
             // Přidat nové soubory do existujícího pole
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
 
                 // Zkontrolovat, zda je to obrázek
                 if (file.type.startsWith('image/')) {
-                    imageFiles.push(file); // Přidat obrázek do pole
-
                     const reader = new FileReader();
                     reader.onload = function(event) {
                         const img = document.createElement('img');
@@ -57,6 +37,11 @@
                     }
 
                     reader.readAsDataURL(file);  // Načíst obrázek jako URL
+
+                    // Přidání souboru do pole imageFiles pouze jednou
+                    if (!imageFiles.includes(file)) {
+                        imageFiles.push(file);  // Uložit soubor, pokud už není přítomen
+                    }
                 }
             }
         }
@@ -66,10 +51,12 @@
             const form = document.querySelector('form');
             const formData = new FormData(form);
 
+            console.log(imageFiles);
             // Přidat všechny obrázky do FormData
             imageFiles.forEach(file => {
                 formData.append('images', file); // Přidat každou vybranou fotku
             });
+            console.log(formData);
 
             fetch(form.action, {
                 method: 'POST',
@@ -107,10 +94,10 @@
                 <label for="image-inputs">Obrázky:</label>
 <!--                <input type="file" class="form-control-file" name="images" multiple>-->
                 <div id="imagePreviewContainer"></div>
-                <input type="file" id="addImage" name="images" multiple accept="image/*" onchange="previewImages()">
+                <input type="file" id="addImage" multiple accept="image/*" onchange="previewImages()">
 
             </div>
-<!--            <button type="button" class="btn btn-secondary mt-2" onclick="addImageInput()">Přidat další obrázek</button>-->
+
             <button type="submit" class="btn btn-primary mt-2">{{ 'Uložit' }}</button>
             <a href="{{ url_for('core.index') }}" class="btn btn-secondary mt-2">Zpět</a>
         </form>

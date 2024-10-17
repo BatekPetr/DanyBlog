@@ -49,7 +49,7 @@ def create_app(cfg):
     login_manager.login_message_category = "danger"
 
     # # Po zmene DB modelu je nutne vymazat a znovu-vytvorit tabulky
-    # with core.app_context():
+    # with app.app_context():
     #     db.drop_all()  # Vymaze existujici tabulky
 
     # Vytvoření databázových tabulek při prvním spuštění

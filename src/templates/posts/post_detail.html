@@ -22,46 +22,10 @@
 
                     <p>{{ post.content }}</p>
 
-                    {% if post.images %}
-                        <!-- Zobrazení všech obrázků -->
-<!--                        <div id="carouselExampleIndicators" class="carousel slide" data-bs-wrap="true" data-bs-keyboard="true">-->
-<!--                            <div class="carousel-indicators">-->
-<!--                                {% for image in post.images %}-->
-<!--                                    <button type="button" data-bs-target="#carouselExampleIndicators"-->
-<!--                                            data-bs-slide-to="{{loop.index0}}"-->
-<!--                                            class="{% if loop.first %}active{% endif %}">-->
-<!--                                    </button>-->
-<!--                                {% endfor %}-->
-<!--                            </div>-->
-<!--                            <div class="carousel-inner">-->
-<!--                                {% for image in post.images %}-->
-<!--                                <div class="carousel-item {% if loop.first %}active{% endif %}" id="{{ loop.index0 }}">-->
-<!--                                    <img src="{{ url_for('static', filename='uploads/' ~ image) }}"-->
-<!--                                         class="d-block w-100">-->
-<!--                                &lt;!&ndash; Tlačítko pro odstranění obrázku &ndash;&gt;-->
-<!--                                <form action="{{ url_for('posts.delete_image', post_id=post.id, image_name=image) }}"-->
-<!--                                      method="POST">-->
-<!--                                    <button type="submit" class="btn btn-danger mt-2" data-bs-target="false">-->
-<!--                                        Odstranit obrázek-->
-<!--                                    </button>-->
-<!--                                </form>-->
-<!--                                </div>-->
-<!--                                {% endfor %}-->
-<!--                            </div>-->
-<!--                            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators"-->
-<!--                                    data-bs-slide="prev">-->
-<!--                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>-->
-<!--                                <span class="visually-hidden">Previous</span>-->
-<!--                            </button>-->
-<!--                            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators"-->
-<!--                                    data-bs-slide="next">-->
-<!--                                <span class="carousel-control-next-icon" aria-hidden="true"></span>-->
-<!--                                <span class="visually-hidden">Next</span>-->
-<!--                            </button>-->
-<!--                        </div>-->
+                    {% if images %}
                         <div class="container">
                           <div class="row">
-                            {% for image in post.images %}
+                            {% for image in images %}
                             <div class="col-md-4 col-sm-6 mb-4">
                               <a href="{{ url_for('static', filename='uploads/' ~ image) }}" data-lightbox="gallery">
                                 <img src="{{ url_for('static', filename='uploads/' ~ image) }}" class="img-fluid lb-image" alt="Post Image">

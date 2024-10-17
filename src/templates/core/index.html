@@ -19,7 +19,8 @@
                                 <h3 class="post-subtitle">{{ post.content[:100] }}...</h3>
                             </a>
                             {% if post.images %}
-                                <img class="card-img-top post-image" src="{{ url_for('static', filename='uploads/' ~ post.images[0]) }}" alt="Obrázek příspěvku">
+                                {% set images = post.images.split(",") %}
+                                <img class="card-img-top post-image" src="{{ url_for('static', filename='uploads/' ~ images[0]) }}" alt="Obrázek příspěvku">
                             {% endif %}
                             <p class="post-meta">
                                 Zveřejněno {{ post.created_at.strftime('%Y-%m-%d') }}

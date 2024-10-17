@@ -25,7 +25,7 @@ class Config:
 # Vývojové prostředí
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URI') or instance_config.SQLALCHEMY_DATABASE_URI
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URI') or instance_config.MYSQL_DATABASE_URI
 
 # Testovací prostředí
 class TestingConfig(Config):
@@ -36,7 +36,7 @@ class TestingConfig(Config):
 # Produkční prostředí
 class ProductionConfig(Config):
     DEBUG = False
-    SQLALCHEMY_DATABASE_URI = os.environ.get('PROD_DATABASE_URI') or instance_config.SQLALCHEMY_DATABASE_URI
+    SQLALCHEMY_DATABASE_URI = os.environ.get('PROD_DATABASE_URI') or instance_config.MYSQL_DATABASE_URI
 
 # Volba konfigurace podle prostředí
 config = {

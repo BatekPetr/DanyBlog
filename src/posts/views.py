@@ -22,13 +22,16 @@ def add_post():
         content = request.form['content']
 
         # Zpracování nahrání obrázku, pokud je přítomen
-        image_filenames = []
+        image_filenames = ""
         images = request.files.getlist('images')
         if images and images[0].filename != '':  # Zkontrolovat, zda jsou obrázky
             for image in images:
                 file_name = secure_filename(image.filename)
                 image.save(os.path.join(current_app.config['UPLOAD_FOLDER'], file_name))
-                image_filenames.append(file_name)
+                image_filenames += file_name + ","
+
+            # Odtranit posledni ","
+            image_filenames = image_filenames[:-1]
 
         # Uložení příspěvku do databáze
         new_post = Post(title=title, content=content, images=image_filenames)
@@ -53,13 +56,16 @@ def edit_post(post_id):
         # Zpracování nových obrázků
         images = request.files.getlist('images')
         if images and images[0].filename != '':  # Zkontrolovat, zda jsou obrázky
-            image_filenames = []
+            image_filenames = ""
             for image in images:
                 file_name = secure_filename(image.filename)
                 image.save(os.path.join(current_app.config['UPLOAD_FOLDER'], file_name))
-                image_filenames.append(file_name)
+                image_filenames += file_name + ","
+
+            # Odtranit posledni ","
+            image_filenames = image_filenames[:-1]
             if post.images:
-                post.images += image_filenames
+                post.images += "," + image_filenames
             else:
                 post.images = image_filenames
 
@@ -80,9 +86,10 @@ def edit_post(post_id):
 def delete_post(post_id):
     post = Post.query.get_or_404(post_id)
 
+    images = post.images.split(",")
     # Odstranění obrázku ze složky uploads, pokud existuje
-    if post.images:
-        for image in post.images:
+    if images:
+        for image in images:
             image_path = os.path.join(current_app.config['UPLOAD_FOLDER'], image)
             if os.path.exists(image_path):
                 os.remove(image_path)
@@ -100,9 +107,10 @@ def delete_post(post_id):
 def delete_image(post_id, image_name):
     post = Post.query.get_or_404(post_id)
 
+    images = post.images.split(",")
     # Odstraň obrázek ze seznamu obrázků (pokud existuje)
-    if image_name in post.images:
-        post.images.remove(image_name)
+    if image_name in images:
+        post.images.replace("," + image_name, "")
 
         # Ulož změny do databáze
         db.session.commit()
@@ -125,5 +133,7 @@ def delete_image(post_id, image_name):
 @check_is_approved
 def post_detail(post_id):
     post = Post.query.get_or_404(post_id)
+    images = post.images.split(",")
     return render_template('posts/post_detail.html', post=post,
-                           image=os.path.join('uploads/', post.images[0]))
+                           heading_image=os.path.join(images[0]),
+                           images=images)

@@ -11,9 +11,9 @@ class User(UserMixin, db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False, server_default=sqlalchemy.sql.expression.literal("NoName"))
-    email = db.Column(db.String, unique=True, nullable=False)
-    password = db.Column(db.String, nullable=False)
+    name = db.Column(db.String(20), nullable=False, server_default=sqlalchemy.sql.expression.literal("NoName"))
+    email = db.Column(db.String(30), unique=True, nullable=False)
+    password = db.Column(db.String(100), nullable=False)
     created_on = db.Column(db.DateTime, nullable=False)
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
     is_confirmed = db.Column(db.Boolean, nullable=False, default=False,
