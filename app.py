@@ -1,8 +1,6 @@
-import os
+from flask import Flask
 
-from flask import render_template, Flask
-
-from model import bcrypt, db, login_manager, migrate, mail
+from model import bcrypt, db, login_manager, migrate, mail, oauth
 from config import config
 
 # Import blueprints
@@ -32,6 +30,9 @@ def create_app(cfg):
     app.config['MAIL_USERNAME'] = cfg.ADMIN_EMAIL
     app.config['MAIL_PASSWORD'] = cfg.ADMIN_EMAIL_APP_PASS
 
+    # Konfigurace Google OAuth
+    app.config['GOOGLE_CLIENT_ID'] = cfg.GOOGLE_CLIENT_ID
+    app.config['GOOGLE_CLIENT_SECRET'] = cfg.GOOGLE_CLIENT_SECRET
 
     bcrypt.init_app(app)
     db.init_app(app)
@@ -39,6 +40,15 @@ def create_app(cfg):
 
     mail.init_app(app)
     migrate.init_app(app, db)
+
+    oauth.init_app(app)
+    oauth.register(
+        name='google',
+        server_metadata_url=cfg.GOOGLE_DISCOVERY_URL,
+        client_kwargs={
+            'scope': 'openid email profile'
+        }
+    )
 
     # Registering blueprints
     app.register_blueprint(accounts_bp)

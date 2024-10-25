@@ -22,6 +22,13 @@ class Config:
     SECRET_KEY = instance_config.SECRET_KEY
     SECURITY_PASSWORD_SALT = instance_config.SECURITY_PASSWORD_SALT
 
+    GOOGLE_CLIENT_ID = instance_config.GOOGLE_CLIENT_ID
+    GOOGLE_CLIENT_SECRET = instance_config.GOOGLE_CLIENT_SECRET
+    GOOGLE_DISCOVERY_URL = (
+        "https://accounts.google.com/.well-known/openid-configuration"
+    )
+
+
 # Vývojové prostředí
 class DevelopmentConfig(Config):
     DEBUG = True

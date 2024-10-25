@@ -1,3 +1,5 @@
+authlib
+cryptography
 email-validator
 Flask
 Flask-SQLAlchemy
@@ -11,3 +13,5 @@ Flask-Testing
 
 psycopg2-binary
 python-decouple
+pymysql
+requests
