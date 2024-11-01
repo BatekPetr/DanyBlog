@@ -17,9 +17,6 @@
                     <a class="btn btn-success" href="{{ url_for('posts.edit_post', post_id=post.id) }}">Upravit příspěvek</a>
                     <a class="btn btn-danger" href="{{ url_for('posts.delete_post', post_id=post.id) }}">Odstranit příspěvek</a>
                     <hr>
-
-                    <span class="meta">Publikováno dne {{ post.created_at.strftime('%d.%m.%Y') }}</span>
-
                     <p>{{ post.content }}</p>
 
                     {% if images %}
@@ -35,6 +32,12 @@
                           </div>
                         </div>
                     {% endif %}
+
+                    <div style="text-align: right;">
+                        <span> By {{ user.name }}</span>
+                        <br>
+                        <span class="meta"> {{ post.created_at.strftime('%d.%m.%Y') }} </span>
+                    </div>
 
                     <a href="{{ url_for('core.index') }}" class="btn btn-primary mt-4">Zpět na domovskou stránku</a>
                 </div>

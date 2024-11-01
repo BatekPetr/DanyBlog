@@ -1,11 +1,12 @@
 import os
 from flask import Blueprint, current_app, render_template, redirect, request, url_for, jsonify, flash
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 from werkzeug.utils import secure_filename
 
 # App package imports
 from model import db
+from src.accounts.models import User
 from src.utils.decorators import check_is_approved
 
 # Relative imports to avoid conflicts with Pypy packages
@@ -37,7 +38,7 @@ def add_post():
             image_filenames = image_filenames[:-1]
 
         # Uložení příspěvku do databáze
-        new_post = Post(title=title, content=content, images=image_filenames)
+        new_post = Post(title=title, content=content, images=image_filenames, published_by=current_user.id)
         db.session.add(new_post)
         db.session.commit()
 
@@ -136,7 +137,8 @@ def delete_image(post_id, image_name):
 @check_is_approved
 def post_detail(post_id):
     post = Post.query.get_or_404(post_id)
+    user = User.query.get_or_404(post.published_by)
     images = post.images.split(",")
-    return render_template('posts/post_detail.html', post=post,
+    return render_template('posts/post_detail.html', post=post, user=user,
                            heading_image=os.path.join(images[0]),
                            images=images)

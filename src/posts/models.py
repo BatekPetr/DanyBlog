@@ -1,3 +1,5 @@
+import sqlalchemy
+
 from model import db
 
 
@@ -10,3 +12,5 @@ class Post(db.Model):
     content = db.Column(db.Text, nullable=False)
     images = db.Column(db.String(1000), nullable=True, default="")
     created_at = db.Column(db.DateTime, server_default=db.func.now())
+    published_by = db.Column(db.Integer, nullable=False,
+                             server_default=sqlalchemy.sql.expression.literal(1))
