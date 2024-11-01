@@ -1,12 +1,15 @@
 import os
 from flask import Blueprint, current_app, render_template, redirect, request, url_for, jsonify, flash
 from flask_login import login_required
+
 from werkzeug.utils import secure_filename
 
-from src.posts.models import Post
-from src.utils.decorators import check_is_approved
+# App package imports
 from model import db
+from src.utils.decorators import check_is_approved
 
+# Relative imports to avoid conflicts with Pypy packages
+from .models import Post
 
 # Defining a blueprint
 posts_bp = Blueprint('posts', __name__, template_folder='../templates')

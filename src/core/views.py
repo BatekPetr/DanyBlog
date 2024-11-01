@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template
 from flask_login import login_required
 
-from ..accounts.models import User
-from ..posts.models import Post
-from ..utils.decorators import check_is_approved
+# App package imports
+from src.posts.models import Post
+from src.utils.decorators import check_is_approved
 
 core_bp = Blueprint("core", __name__, template_folder='../templates', static_folder='../static')
 

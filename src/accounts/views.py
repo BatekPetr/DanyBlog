@@ -3,13 +3,16 @@ from datetime import datetime
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for, jsonify
 from flask_login import login_required, login_user, logout_user, current_user
 
-from src.accounts.token import generate_token, confirm_token
+# App package imports
 from src.utils.decorators import logout_required, admin_required
 from src.utils.email import send_email
 from model import bcrypt, db, oauth
 
-from .models import User
+# Relative imports to avoid conflicts with Pypy packages
 from .forms import LoginForm, RegisterForm
+from .models import User
+from .token import generate_token, confirm_token
+
 
 accounts_bp = Blueprint("accounts", __name__, template_folder='../templates')
 

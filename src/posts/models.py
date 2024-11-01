@@ -1,6 +1,3 @@
-from sqlalchemy import ARRAY
-from sqlalchemy.ext.mutable import MutableList
-
 from model import db
 
 
