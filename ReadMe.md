@@ -13,7 +13,7 @@ Hosted at [PythonAnywhere](https://petrb.eu.pythonanywhere.com/login?next=%2F).
 
 ### Back end
 * Python Flask - blueprints, logging, routing, WTForms
-* SQLAlchemy for database management
+* SQLAlchemy for database access and management
 * Google OAuth authentication
 
 ### Development
