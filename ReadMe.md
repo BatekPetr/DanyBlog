@@ -18,9 +18,11 @@ Hosted at [PythonAnywhere](https://petrb.eu.pythonanywhere.com/login?next=%2F).
 
 ### Development
 * Pycharm, Mozilla Firefox, Google chrome
+* Python [venv](https://docs.python.org/3/library/venv.html) environment
 * CHatGPT for initial templates generation
 
 ## Ideas for improvement (ToDo)
 * The blog was inteded for family members, therefore it is partially in Czech and partially in English 
 (due to conflict of development habits and targeting of family). Make the App Multilingual with Flask Babel.
 * Add possibility to comment and like posts.
+* Add error HTML templates
